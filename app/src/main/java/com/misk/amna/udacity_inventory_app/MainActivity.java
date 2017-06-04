@@ -1,10 +1,6 @@
-
-
-
-
-// All codes written withe help from https://github.com/udacity/ud845-Pets/tree/master/app/src/main/java/com/example/android/pets
-
-
+/** All codes written withe help from https://github.com/udacity/ud845-Pets/tree/master/app/src/main/java/com/example/android/pets
+and https://developer.android.com/training/camera/photobasics.html
+ */
 package com.misk.amna.udacity_inventory_app;
 
 import android.app.LoaderManager;
@@ -24,12 +20,10 @@ import android.widget.ListView;
 
 import com.misk.amna.udacity_inventory_app.data.ProductContract;
 
-
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int PRODUCT_LOADER = 0;
-
     ProductCursorAdapter mCursorAdapter;
 
     @Override
@@ -68,15 +62,11 @@ public class MainActivity extends AppCompatActivity implements
         getLoaderManager().initLoader(PRODUCT_LOADER, null, this);
     }
 
-
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_catalog, menu);
         return true;
     }
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {

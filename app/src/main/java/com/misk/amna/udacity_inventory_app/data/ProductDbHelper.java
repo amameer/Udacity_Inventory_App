@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class ProductDbHelper extends SQLiteOpenHelper {
 
 
-    private static final String DATABASE_NAME = "inventory.db";
+    private static final String DATABASE_NAME = "inventory22.db";
 
 
     private static final int DATABASE_VERSION = 1;
@@ -27,7 +27,8 @@ public class ProductDbHelper extends SQLiteOpenHelper {
                 + ProductContract.ProductEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + ProductContract.ProductEntry.COLUMN_PRODUCT_NAME + " TEXT NOT NULL, "
                 + ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY + " INTEGER NOT NULL DEFAULT 0, "
-                + ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE + " INTEGER NOT NULL DEFAULT 0);";
+                + ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE + " INTEGER NOT NULL DEFAULT 0,"
+                + ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE + " BLOB NOT NULL);";
 
         db.execSQL(SQL_CREATE_PRODUCTS_TABLE);
     }

@@ -26,6 +26,10 @@
             android:name=".data.ProductProvider"
           android:authorities="com.misk.amna.udacity_inventory_app"
             android:exported="false" />
+        <uses-feature android:name="android.hardware.camera"
+            android:required="true"></uses-feature>
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     </application>
 
 </manifest>

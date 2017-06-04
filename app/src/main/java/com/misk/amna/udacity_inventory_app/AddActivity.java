@@ -3,8 +3,11 @@ package com.misk.amna.udacity_inventory_app;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -12,11 +15,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.misk.amna.udacity_inventory_app.data.ProductContract;
 
+import java.io.ByteArrayOutputStream;
 
 public class AddActivity extends AppCompatActivity {
 
@@ -25,6 +31,9 @@ public class AddActivity extends AppCompatActivity {
     private EditText mQuantityEditText;
     private EditText mPriceEditText;
     private boolean mProductHasChanged = false;
+    private Button maddImageBtn;
+    private byte[] image= new byte[0];
+    private ImageView mImageView;
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
@@ -33,6 +42,8 @@ public class AddActivity extends AppCompatActivity {
             return false;
         }
     };
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +58,33 @@ public class AddActivity extends AppCompatActivity {
         mNameEditText.setOnTouchListener(mTouchListener);
         mQuantityEditText.setOnTouchListener(mTouchListener);
         mPriceEditText.setOnTouchListener(mTouchListener);
+        mImageView=(ImageView)findViewById(R.id.imageView);
+        maddImageBtn=(Button) findViewById(R.id.AddImage);
+        maddImageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                }
+            }
+        });
+
+
 
     }
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            mImageView.setImageBitmap(imageBitmap);
+            ByteArrayOutputStream bs = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bs);
+            image = bs.toByteArray();
+        }
+    }
     private void saveProduct() {
 
         String nameString = mNameEditText.getText().toString().trim();
@@ -57,8 +92,9 @@ public class AddActivity extends AppCompatActivity {
         String priceString = mPriceEditText.getText().toString().trim();
 
 
-        if (TextUtils.isEmpty(nameString) &&
-                TextUtils.isEmpty(priceString) &&
+        if (TextUtils.isEmpty(nameString) ||
+                TextUtils.isEmpty(priceString) ||
+                image.length==0 ||
                 TextUtils.isEmpty(quantityString)) {
             Toast.makeText(this,"Cannot add empty fields", Toast.LENGTH_LONG).show();
             return;
@@ -68,7 +104,7 @@ public class AddActivity extends AppCompatActivity {
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, nameString);
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE,priceString );
-
+        values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE,image);
             Uri mUri = getContentResolver().insert(ProductContract.ProductEntry.CONTENT_URI, values);
 
             if (mUri == null) {
@@ -151,5 +187,4 @@ public class AddActivity extends AppCompatActivity {
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
-
 }

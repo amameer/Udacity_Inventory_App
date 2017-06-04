@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
@@ -19,6 +21,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.misk.amna.udacity_inventory_app.data.ProductContract;
@@ -36,6 +39,7 @@ public class DetailActivity extends AppCompatActivity implements
     private Button mShipmentButton;
     private Button mOrderButton;
     private Button mDeleteButton;
+    private ImageView mImageView2;
 
     private boolean mProductHasChanged = false;
 
@@ -90,8 +94,6 @@ public class DetailActivity extends AppCompatActivity implements
         mOrderButton.setOnClickListener(new View.OnClickListener()
                                         {
                                             public void onClick(View v) {
-
-
                                                 Intent intent = new Intent(Intent.ACTION_SEND);
                                                 intent.setType("text/plain");
                                                 intent.putExtra(Intent.EXTRA_TEXT, "Please Provide us with product :"+mNameEditText.getText() +"  Regards");
@@ -103,15 +105,10 @@ public class DetailActivity extends AppCompatActivity implements
         mDeleteButton.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View v){
-
                 showDeleteConfirmationDialog();
-
             }
         });
-
-        mNameEditText.setOnTouchListener(mTouchListener);
-        mQuantityEditText.setOnTouchListener(mTouchListener);
-        mPriceEditText.setOnTouchListener(mTouchListener);
+        mImageView2=(ImageView)findViewById(R.id.imageView2);
     }
 
     private void saveProduct() {
@@ -119,39 +116,27 @@ public class DetailActivity extends AppCompatActivity implements
         String quantityString = mQuantityEditText.getText().toString().trim();
         String priceString = mPriceEditText.getText().toString().trim();
 
-        if (uri == null &&
-                TextUtils.isEmpty(nameString) &&
-                TextUtils.isEmpty(priceString) &&  TextUtils.isEmpty(quantityString)) {
+        if (uri == null ||
+                TextUtils.isEmpty(nameString) ||
+                TextUtils.isEmpty(priceString) ||  TextUtils.isEmpty(quantityString)) {
             Toast.makeText(this,"Cannot save empty fields", Toast.LENGTH_SHORT).show();
 
             return;
         }
-
 
         ContentValues values = new ContentValues();
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME, nameString);
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY, quantityString);
         values.put(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE,priceString );
 
-        if (uri == null) {
-
-            Uri mUri = getContentResolver().insert(ProductContract.ProductEntry.CONTENT_URI, values);
-            if (mUri == null) {
-                Toast.makeText(this,"Cannot Save Product", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this,"successful save", Toast.LENGTH_SHORT).show();
-
-            }
-        } else {
-
             int effectedRow = getContentResolver().update(uri, values, null, null);
 
             if (effectedRow == 0) {
                 Toast.makeText(this,"Error !!", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this,"successful save", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,"Successful Update", Toast.LENGTH_SHORT).show();
             }
-        }
+
     }
 
     @Override
@@ -160,7 +145,6 @@ public class DetailActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.menu_editor, menu);
         return true;
     }
-
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -194,7 +178,6 @@ public class DetailActivity extends AppCompatActivity implements
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     public void onBackPressed() {
@@ -240,7 +223,7 @@ public class DetailActivity extends AppCompatActivity implements
             int nameColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_NAME);
             int quantityColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_QUANTITY);
             int priceColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_PRICE);
-
+            int imageColumnIndex=cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRODUCT_IMAGE);
             String name = cursor.getString(nameColumnIndex);
             int quantity = cursor.getInt(quantityColumnIndex);
             int price = cursor.getInt(priceColumnIndex);
@@ -249,6 +232,15 @@ public class DetailActivity extends AppCompatActivity implements
             mQuantityEditText.setText(Integer.toString(quantity));
             mPriceEditText.setText(Integer.toString(price));
 
+            if (imageColumnIndex!=-1) {
+                byte[] image2 = cursor.getBlob(imageColumnIndex);
+                Bitmap bmp = BitmapFactory.decodeByteArray(image2, 0, image2.length);
+                mImageView2.setImageBitmap(bmp);
+            }
+
+            mNameEditText.setOnTouchListener(mTouchListener);
+            mQuantityEditText.setOnTouchListener(mTouchListener);
+            mPriceEditText.setOnTouchListener(mTouchListener);
         }
     }
 
@@ -259,7 +251,6 @@ public class DetailActivity extends AppCompatActivity implements
         mPriceEditText.setText("");
 
     }
-
 
     private void showUnsavedChangesDialog(
             DialogInterface.OnClickListener discardButtonClickListener) {
